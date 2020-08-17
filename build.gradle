@@ -1,0 +1,107 @@
+plugins {
+    id 'org.springframework.boot' version '2.3.3.RELEASE'
+    id 'io.spring.dependency-management' version '1.0.10.RELEASE'
+    id 'java'
+    id "com.ewerk.gradle.plugins.querydsl" version '1.0.10'
+}
+
+group = 'com.beanbroker'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+ext {
+    querydsl_version = '4.3.1'
+}
+
+test {
+    useJUnitPlatform()
+    dependencies {
+        compile("org.springframework.boot:spring-boot-starter-web") {
+            exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
+        }
+        compile("org.springframework.boot:spring-boot-starter-undertow")
+        compileOnly 'org.projectlombok:lombok'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        testImplementation('org.springframework.boot:spring-boot-starter-test') {
+            exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+        }
+
+
+        //db
+        implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+        compile("com.querydsl:querydsl-mongodb:$querydsl_version")
+        compile("com.querydsl:querydsl-apt:${querydsl_version}")
+//	compile("com.querydsl:querydsl-sql:${querydsl_version}")
+//	compile("com.querydsl:querydsl-sql-spring:${querydsl_version}")
+
+
+        annotationProcessor(
+                'org.springframework.boot:spring-boot-configuration-processor',
+                "com.querydsl:querydsl-apt:${querydsl_version}",
+                'org.projectlombok:lombok'
+        )
+    }
+}
+
+ext.profile = (!project.hasProperty('profile') || !profile) ? 'local' : profile
+
+sourceSets {
+    main {
+        resources {
+            srcDirs "src/main/resources", "src/main/resources-${profile}"
+        }
+    }
+}
+
+
+def querydslSrcDir = 'src/main/generated'
+
+querydsl {
+    springDataMongo = true
+    library = "com.querydsl:querydsl-apt"
+//    jpa = true
+    querydslSourcesDir = querydslSrcDir
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    querydsl.extendsFrom compileClasspath
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src/main/java', querydslSrcDir]
+        }
+    }
+}
+
+
+task deleteGeneratedSources(type: Delete) {
+    delete file(querydslSrcDir)
+}
+
+tasks.withType(JavaCompile) { it.dependsOn('deleteGeneratedSources') }
+//
+project.afterEvaluate {
+    project.tasks.compileQuerydsl.options.compilerArgs = [
+            "-proc:only",
+            "-processor", project.querydsl.processors() +
+                    ',lombok.launch.AnnotationProcessorHider$AnnotationProcessor'
+    ]
+}
