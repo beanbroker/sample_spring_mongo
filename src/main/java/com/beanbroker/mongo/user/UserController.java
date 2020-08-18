@@ -2,6 +2,7 @@ package com.beanbroker.mongo.user;
 
 import com.beanbroker.mongo.user.dto.UserDto;
 import com.beanbroker.mongo.user.dto.UserSignUpRequest;
+import com.beanbroker.mongo.user.repositoy.UserPredictor;
 import com.beanbroker.mongo.user.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +26,6 @@ public class UserController {
   @GetMapping
   public UserDto user(@RequestParam("userId") String userId) {
 
-
-
     return userService.getUserData(userId);
   }
 
@@ -35,5 +34,19 @@ public class UserController {
   public void updateUser(@PathVariable("userId") String userId) {
 
     userService.deleteUser(userId);
+  }
+
+  @GetMapping("/search")
+  public UserDto findByUserName(
+      @RequestParam(value = "userName", required = false) String userName,
+      @RequestParam(value = "email", required = false) String email,
+      @RequestParam(value = "userId", required = false) String userId) {
+
+    UserPredictor predictor = new UserPredictor();
+    predictor.email(email);
+    predictor.userId(userId);
+    predictor.userName(userName);
+
+    return userService.findByUserPredictor(predictor);
   }
 }
