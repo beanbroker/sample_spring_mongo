@@ -41,6 +41,8 @@ public class QUserCollection extends EntityPathBase<UserCollection> {
 
     public final StringPath userName = createString("userName");
 
+    public final NumberPath<Integer> version = createNumber("version", Integer.class);
+
     public QUserCollection(String variable) {
         super(UserCollection.class, forVariable(variable));
     }

@@ -34,6 +34,9 @@ public class UserCollection {
   @Field @LastModifiedBy private String updatedBy;
   @Field @LastModifiedDate private LocalDateTime updatedAt;
 
+  @Version
+  private Integer version;
+
   @Field("isDeleted")
   private int isDeleted;
 }
