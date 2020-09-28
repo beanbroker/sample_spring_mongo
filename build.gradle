@@ -6,7 +6,9 @@ plugins {
 }
 
 group = 'com.beanbroker'
-version = '0.0.1-SNAPSHOT-dev'
+
+version = '0.0.3-SNAPSHOT-dev'
+
 sourceCompatibility = '1.8'
 
 configurations {
