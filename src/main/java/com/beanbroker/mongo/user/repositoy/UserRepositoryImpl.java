@@ -20,6 +20,10 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Use
     return from(collection).where(collection.userName.eq(userName)).fetchOne();
   }
 
+
+
+  //test of test
+
   @Override
   public UserCollection findByUserPredictor(Predicate predicate) {
 
