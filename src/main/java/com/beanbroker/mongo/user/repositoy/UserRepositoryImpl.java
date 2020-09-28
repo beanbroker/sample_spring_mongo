@@ -22,7 +22,7 @@ public class UserRepositoryImpl extends QuerydslRepositorySupport implements Use
 
 
 
-  //test of test
+  //test of testsfdsfsdfsdfsdf
 
   @Override
   public UserCollection findByUserPredictor(Predicate predicate) {
